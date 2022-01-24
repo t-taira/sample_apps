@@ -4,6 +4,7 @@ class AccountActivationsController < ApplicationController
     user = User.find_by(email: params[:email])
     if user && !user.activated? && user.authenticated?(:activation, params[:id])
       user.activate
+      Users::LoginNotificationJob.perform_now(user)
       log_in user
       flash[:success] = "Account activated!"
       redirect_to user
